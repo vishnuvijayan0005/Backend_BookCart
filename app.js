@@ -26,7 +26,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors())
+app.use(cors({
+  origin: [
+  
+    "https://frontend-book-cart-cvig.vercel.app"
+  ],
+  credentials: true
+}));
+
 app.use('/seller', sellerRouter);
 app.use('/', usersRouter);
 app.use('/admin', adminRouter);
