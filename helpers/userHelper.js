@@ -1,6 +1,8 @@
 import Banner from "../model/Banner.js";
 import Book from "../model/Book.js";
+import cartproducts from "../model/BookCartSchema.js";
 import Cart from "../model/CartSchema.js";
+import mongoose from "mongoose";
 
 // ------------get all product-------------
 
@@ -196,3 +198,111 @@ export const dbgetbanner=async()=>{
     }
   }
 }
+
+
+export const cartadd = async (productId, userId) => {
+  const query = {
+    productId: new mongoose.Types.ObjectId(productId),
+    userId: new mongoose.Types.ObjectId(userId),
+  };
+
+  const existingCartItem = await cartproducts.findOne(query);
+
+  if (existingCartItem && existingCartItem.isDeleted === false) {
+    return {
+      success: false,
+      message: "Already in the cart",
+    };
+  }
+
+ 
+  if (existingCartItem && existingCartItem.isDeleted === true) {
+    existingCartItem.isDeleted = false;
+    existingCartItem.quantity = 1; 
+    await existingCartItem.save();
+
+    return {
+      success: true,
+      message: "Product added to cart",
+      data: existingCartItem,
+    };
+  }
+
+  const cartprod = await cartproducts.create({
+    productId,
+    userId,
+    quantity: 1,
+    isDeleted: false,
+  });
+
+  return {
+    success: true,
+    message: "Product added to cart",
+    data: cartprod,
+  };
+};
+
+export const getcartItem = async (userId) => {
+
+    
+  const cartitems = await cartproducts.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+        isDeleted: false,
+      },
+    },
+
+    {
+      $lookup: {
+        from: "books", // MongoDB collection name
+        localField: "productId", // field in cartproducts
+        foreignField: "_id", // field in products
+        as: "result", // output array field
+      },
+    },
+
+    { $unwind: "$result" },
+        {
+      $project: {
+    
+        result: 1,
+      },
+    },
+  ]);
+ 
+
+  return {
+    success: true,
+    message: "product fetched",
+    data: cartitems,
+  };
+};
+
+
+export const deletecartproduct = async (productId, userId) => {
+  const result = await cartproducts.findOneAndUpdate(
+    {
+      productId: new mongoose.Types.ObjectId(productId),
+      userId: new mongoose.Types.ObjectId(userId),
+      isDeleted: false,
+    },
+    {
+      isDeleted: true,
+        quantity: 1,
+    },
+    { new: true }
+  );
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Cart product not found",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Cart product deleted successfully",
+  };
+};

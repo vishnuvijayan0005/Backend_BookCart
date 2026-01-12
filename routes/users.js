@@ -1,5 +1,5 @@
 import express from 'express';
-import {  getAllbooks, getbanner, getbookbyId, getuserAllbooks, getwishbooks, wishbook } from '../controller/userController.js';
+import {  addcart, cartproductdelete, getAllbooks, getbanner, getbookbyId, getCartProduct, getuserAllbooks, getwishbooks, wishbook } from '../controller/userController.js';
 import { authregistration, userlogin } from '../controller/authController.js';
 import { protect } from '../middleware/protect.js';
 import { addbanner } from '../controller/adminController.js';
@@ -18,4 +18,9 @@ router.post("/wishbook/:id",protect,wishbook)
 router.get("/wishlist",protect,getwishbooks)
 
 router.get("/getbanner",getbanner)
+
+
+router.post('/cart/:id',protect,addcart)
+router.get('/cartproducts',protect,getCartProduct)
+router.delete('/cartdelete/:id',protect,cartproductdelete)
 export default router

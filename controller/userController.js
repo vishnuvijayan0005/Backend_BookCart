@@ -1,4 +1,4 @@
-import {  dbgetbanner, dbgetwishbook, dbToggleWishBook, getall, getbyId, getuserall } from "../helpers/userHelper.js";
+import {  cartadd, dbgetbanner, dbgetwishbook, dbToggleWishBook, deletecartproduct, getall, getbyId, getcartItem, getuserall } from "../helpers/userHelper.js";
 
 export const getAllbooks = async (req, res) => {
   const result = await getall();
@@ -91,4 +91,46 @@ export const getbanner=async(req,res)=>{
   else{
     res.status(401).json(result)
   }
+}
+
+
+export const addcart =async(req,res)=>{
+    const productid = req.params.id;
+    const userid=req.user.id;
+    
+    
+    const result = await cartadd(productid,userid)
+
+    
+    if(result.success){
+        res.status(200).json(result)
+    }
+    else{
+        res.status(500).json({message:"product already in cart"})
+    }
+    
+}
+export const getCartProduct =async(req,res)=>{
+
+const userId=req.user.id;
+const result =await getcartItem(userId)
+if(result.success){
+    res.status(200).json(result)
+    
+    
+}
+else(res.status(500).json({message:'no product found in the cart'}))
+}
+export const cartproductdelete=async(req,res)=>{
+    const userId =req.user.id;
+    const productId= req.params.id;
+    const result =await deletecartproduct(productId,userId)
+    if (!result.success) {
+res.status(200).json(result)        
+    }
+    else
+{
+    res.status(200).json(result)        
+
+}
 }
