@@ -30,7 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://your-frontend.vercel.app",
+"https://frontend-book-cart-cvig.vercel.app/"
 ];
 
 app.use(
